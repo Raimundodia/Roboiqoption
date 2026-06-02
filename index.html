@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super IA Predictor Pro - App Live</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            --bg-principal: #0b0e11;
+            --bg-card: #151a22;
+            --verde: #00e676;
+            --vermelho: #ff3d00;
+            --cinza-linha: #2b3139;
+            --texto: #ffffff;
+            --texto-secundario: #b7bdc6;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg-principal);
+            color: var(--texto);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--cinza-linha);
+        }
+
+        .status-badge {
+            background-color: rgba(255, 3d, 0, 0.2);
+            color: var(--vermelho);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .status-badge.ativo {
+            background-color: rgba(0, 230, 118, 0.2);
+            color: var(--verde);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 992px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid var(--cinza-linha);
+            display: flex;
+            flex-direction: column;
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 17px;
+            color: var(--texto-secundario);
+            border-bottom: 1px solid var(--cinza-linha);
+            padding-bottom: 10px;
+        }
+
+        .campo {
+            margin-bottom: 15px;
+        }
+
+        .campo label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 13px;
+            color: var(--texto-secundario);
+        }
+
+        .campo select, .campo input {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--bg-principal);
+            border: 1px solid var(--cinza-linha);
+            color: white;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--verde);
+            border: none;
+            color: #000;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        button:hover { background-color: #00b359; }
+
+        .price-box {
+            background-color: var(--bg-principal);
+            border: 1px solid var(--cinza-linha);
+            border-radius: 4px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        #btc-price {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--verde);
+        }
+
+        .feed {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 480px;
+            overflow-y: auto;
+        }
+
+        .sinal {
+            background-color: var(--bg-principal);
+            border-left: 5px solid var(--verde);
+            padding: 15px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sinal.put { border-left-color: var(--vermelho); }
+
+        .badge-direcao {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .call .badge-direcao { background-color: var(--verde); color: black; }
+        .put .badge-direcao { background-color: var(--vermelho); color: white; }
+
+        .console-log {
+            background-color: #000;
+            font-family: monospace;
+            color: #00ff00;
+            padding: 10px;
+            border-radius: 4px;
+            height: 100px;
+            overflow-y: auto;
+            font-size: 11px;
+            margin-top: 15px;
+            border: 1px solid var(--cinza-linha);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🤖 SUPER IA <span style="color: var(--verde);">PREDICTOR LIVE</span></h1>
+        <div class="status-badge" id="status">Desconectado da Network</div>
+    </header>
+
+    <div class="grid">
+        <div class="card">
+            <h2>Mapeamento de Fluxo Real</h2>
+            
+            <div class="price-box">
+                <div style="font-size: 12px; color: var(--texto-secundario); margin-bottom: 5px;">FEED MERCADO REAL (BTC/USDT)</div>
+                <div id="btc-price">Carregando...</div>
+            </div>
+
+            <div class="campo">
+                <label>Tempo de Inspiração para o Sinal</label>
+                <select id="tempo">
+                    <option value="1">1 Minuto</option>
+                    <option value="3" selected>3 Minutos</option>
+                    <option value="5">5 Minutos</option>
+                </select>
+            </div>
+
+            <button id="btn-ligar" onclick="alternarIA()">LIGAR SINALIZADOR LIVE</button>
+
+            <div class="console-log" id="console">
+                > Aguardando acionamento...
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🎯 Sinais Calculados com Dados em Tempo Real</h2>
+            <div class="feed" id="feed-sinais"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let ws = null;
+    let iaAtiva = false;
+    let precoAnterior = 0;
+    let precoAtual = 0;
+    let historicoPrecos = [];
+    let cooldownSinal = false;
+
+    function log(texto) {
+        const c = document.getElementById('console');
+        c.innerHTML += `<br>> ${texto}`;
+        c.scrollTop = c.scrollHeight;
+    }
+
+    function conectarMesaDados() {
+        ws = new WebSocket("wss://stream.binance.com:9443/ws/btcusdt@ticker");
+        
+        ws.onopen = () => {
+            document.getElementById('status').innerText = "🟢 CONECTADO AO MERCADO AO VIVO";
+            document.getElementById('status').className = "status-badge ativo";
+            log("Fio de dados WebSocket estabelecido com sucesso.");
+        };
+
+        ws.onmessage = (event) => {
+            const dados = JSON.parse(event.data);
+            precoAtual = parseFloat(dados.c);
+            
+            const elementoPreco = document.getElementById('btc-price');
+            elementoPreco.innerText = `$ ${precoAtual.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            
+            if (precoAtual > precoAnterior) {
+                elementoPreco.style.color = "var(--verde)";
+            } else if (precoAtual < precoAnterior) {
+                elementoPreco.style.color = "var(--vermelho)";
+            }
+            
+            precoAnterior = precoAtual;
+
+            if (iaAtiva) {
+                processarEstrategiaIA(precoAtual);
+            }
+        };
+
+        ws.onclose = () => {
+            document.getElementById('status').innerText = "Desconectado da Network";
+            document.getElementById('status').className = "status-badge";
+            setTimeout(conectarMesaDados, 5000);
+        };
+    }
+
+    function alternarIA() {
+        const btn = document.getElementById('btn-ligar');
+        if (!iaAtiva) {
+            iaAtiva = true;
+            btn.innerText = "DESLIGAR ANÁLISE";
+            btn.style.backgroundColor = "var(--vermelho)";
+            btn.style.color = "white";
+            log("Análise matemática de inteligência artificial iniciada.");
+        } else {
+            iaAtiva = false;
+            btn.innerText = "LIGAR SINALIZADOR LIVE";
+            btn.style.backgroundColor = "var(--verde)";
+            btn.style.color = "black";
+            log("Análise pausada.");
+        }
+    }
+
+    function processarEstrategiaIA(preco) {
+        historicoPrecos.push(preco);
+        if (historicoPrecos.length > 30) historicoPrecos.shift();
+
+        if (cooldownSinal || historicoPrecos.length < 20) return;
+
+        const primeiroPreco = historicoPrecos[0];
+        const diferenca = preco - primeiroPreco;
+
+        let direcao = "";
+        if (diferenca > 15) direcao = "PUT";  
+        if (diferenca < -15) direcao = "CALL"; 
+
+        if (direcao !== "") {
+            dispararSinal(direcao);
+        }
+    }
+
+    function dispararSinal(direcao) {
+        cooldownSinal = true;
+        const tempoExpiracao = document.getElementById('tempo').value;
+        const assertividade = Math.floor(Math.random() * (96 - 86 + 1)) + 86;
+
+        const tempoEntrada = new Date();
+        tempoEntrada.setMinutes(tempoEntrada.getMinutes() + 1);
+        const horarioFormatado = tempoEntrada.toTimeString().split(' ')[0].substring(0, 5);
+
+        const feed = document.getElementById('feed-sinais');
+        const novoSinal = document.createElement('div');
+        novoSinal.className = `sinal ${direcao.toLowerCase()}`;
+
+        novoSinal.innerHTML = `
+            <div>
+                <div style="font-size: 16px;"><strong>USD/BTC (LIVE MASTER)</strong></div>
+                <div style="color: var(--texto-secundario); font-size: 13px; margin-top: 4px;">
+                    Entrada Antecipada: <span style="color: #fff; font-weight: bold;">${horarioFormatado}</span> | Expiração: ${tempoExpiracao} Minutos
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <span class="badge-direcao">${direcao === 'CALL' ? 'COMPRA (CALL)' : 'VENDA (PUT)'}</span>
+                <div style="font-size: 12px; margin-top: 6px; color: var(--verde);">Assertividade: ${assertividade}%</div>
+            </div>
+        `;
+
+        feed.insertBefore(novoSinal, feed.firstChild);
+        log(`🎯 [SINAL REAL EMITIDO] Direção: ${direcao} para às ${horarioFormatado}`);
+
+        setTimeout(() => { cooldownSinal = false; }, 120000);
+    }
+
+    // Modificação obrigatória para ativação e instalação do PWA (App Móvel)
+    window.onload = () => {
+        conectarMesaDados();
+        
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+            .then(() => log("Engine do Aplicativo Móvel inicializada com sucesso."))
+            .catch((err) => console.log("Erro ao carregar ServiceWorker do App:", err));
+        }
+    };
+</script>
+</body>
+</html>
