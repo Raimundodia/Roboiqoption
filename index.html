@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -321,14 +322,12 @@
     let precoAtual = 0;
     let historicoPrecos = [];
     let lockOperacional = false;
-    
-    // VARIÁVEL DE CONTROLO (NOVA): Guarda a referência da última vela operada para bloquear spam
-    let ultimaVelaOperadaID = ""; 
-    
     let pesoVolatilidade = 1.0;
     let intervaloFallback = null;
 
-    // Função para atualizar a "consola" na interface do robô
+    // IMPLEMENTAÇÃO REAL: Chave para travar duplicados na mesma vela (Anti-Spam)
+    let ultimaVelaSinalID = "";
+
     function log(texto) {
         const c = document.getElementById('console');
         if(c) {
@@ -336,6 +335,43 @@
             c.scrollTop = c.scrollHeight;
         }
     }
+
+    function salvarConfiguracoes() {
+        localStorage.setItem('engine_ativo', document.getElementById('ativo').value);
+        localStorage.setItem('engine_timeframe', document.getElementById('timeframe').value);
+        localStorage.setItem('engine_tempo', document.getElementById('tempo').value);
+        localStorage.setItem('engine_tg_token', document.getElementById('tg-token').value);
+        localStorage.setItem('engine_tg_chatid', document.getElementById('tg-chatid').value);
+    }
+
+    function carregarConfiguracoes() {
+        if(localStorage.getItem('engine_ativo')) document.getElementById('ativo').value = localStorage.getItem('engine_ativo');
+        if(localStorage.getItem('engine_timeframe')) document.getElementById('timeframe').value = localStorage.getItem('engine_timeframe');
+        if(localStorage.getItem('engine_tempo')) document.getElementById('tempo').value = localStorage.getItem('engine_tempo');
+        if(localStorage.getItem('engine_tg_token')) document.getElementById('tg-token').value = localStorage.getItem('engine_tg_token');
+        if(localStorage.getItem('engine_tg_chatid')) document.getElementById('tg-chatid').value = localStorage.getItem('engine_tg_chatid');
+        
+        const sinaisSalvos = localStorage.getItem('engine_historico_sinais');
+        if(sinaisSalvos) {
+            document.getElementById('feed-sinais').innerHTML = sinaisSalvos;
+        }
+    }
+
+    function limparHistoricoSinais() {
+        if(confirm("Deseja mesmo limpar a lista de sinais salvos?")) {
+            localStorage.removeItem('engine_historico_sinais');
+            document.getElementById('feed-sinais').innerHTML = '';
+            log("Histórico de sinais limpo.");
+        }
+    }
+
+    function conectarMesaDados() {
+        if (ws) { ws.close(); ws = null; }
+        if (intervaloFallback) { clearInterval(intervaloFallback); intervaloFallback = null; }
+
+        const ativo = document.getElementById('ativo').value;
+        const labelAtivo = document.getElementById('ativo').options[document.getElementById('ativo').selectedIndex].text;
+        document.getElementById('label
 
     // Grava as definições no navegador para não perder as configurações
     function salvarConfiguracoes() {
