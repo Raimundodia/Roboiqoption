@@ -245,10 +245,15 @@
                         <option value="SOLUSDT">USD/SOL (Solana)</option>
                         <option value="XRPUSDT">USD/XRP (Ripple)</option>
                         <option value="ADAUSDT">USD/ADA (Cardano)</option>
+                        
                         <option value="EURUSD">EUR/USD (Euro / Dólar)</option>
                         <option value="GBPUSD">GBP/USD (Libra / Dólar)</option>
                         <option value="USDJPY">USD/JPY (Dólar / Iene)</option>
                         <option value="AUDUSD">AUD/USD (Dólar Australiano)</option>
+                        <option value="USDCAD">USD/CAD (Dólar Americano / Canadense)</option>
+                        <option value="EURGBP">EUR/GBP (Euro / Libra Estelina)</option>
+                        <option value="EURJPY">EUR/JPY (Euro / Iene)</option>
+                        <option value="GBPJPY">GBP/JPY (Libra / Iene)</option>
                     </select>
                 </div>
 
@@ -326,7 +331,7 @@
     let intervaloFallback = null;
     let ultimaVelaSinalID = "";
 
-    // Configurações Analíticas
+    // Configurações Analíticas das Equações
     const PERIODOS_BOLLINGER = 20;
     const DESVIO_BOLLINGER = 2;
     const PERIODOS_RSI = 14;
@@ -376,12 +381,22 @@
         const labelAtivo = document.getElementById('ativo').options[document.getElementById('ativo').selectedIndex].text;
         document.getElementById('label-mercado').innerText = `STREAMING: ${labelAtivo.toUpperCase()}`;
         
-        if ((ativo.includes("EUR") || ativo.includes("GBP") || ativo.includes("JPY") || ativo.includes("AUD")) && !ativo.includes("USDT")) {
+        // Separação lógica entre canais tradicionais e alternativos
+        if ((ativo.includes("EUR") || ativo.includes("GBP") || ativo.includes("JPY") || ativo.includes("AUD") || ativo.includes("CAD")) && !ativo.includes("USDT")) {
             log(`Ativando canal híbrido de Forex para ${ativo}...`);
             document.getElementById('status').innerText = "🟢 FEED FOREX ATIVO";
             document.getElementById('status').className = "status-badge ativo";
             
-            let taxaBase = ativo === "EURUSD" ? 1.0825 : ativo === "GBPUSD" ? 1.2640 : ativo === "USDJPY" ? 155.40 : 0.6650;
+            let taxaBase = 1.0000;
+            if (ativo === "EURUSD") taxaBase = 1.0825;
+            else if (ativo === "GBPUSD") taxaBase = 1.2640;
+            else if (ativo === "USDJPY") taxaBase = 155.40;
+            else if (ativo === "AUDUSD") taxaBase = 0.6650;
+            else if (ativo === "USDCAD") taxaBase = 1.3620;
+            else if (ativo === "EURGBP") taxaBase = 0.8560;
+            else if (ativo === "EURJPY") taxaBase = 168.20;
+            else if (ativo === "GBPJPY") taxaBase = 196.50;
+
             intervaloFallback = setInterval(() => {
                 let variacao = (Math.random() - 0.5) * (taxaBase * 0.0002);
                 atualizarPrecoMestre(taxaBase + variacao);
@@ -419,7 +434,7 @@
             atualizarPrecoMestre(valorFicticio);
         }, 1000);
     }
-    function ativarContingencia(ativo) { activarContingencia(ativo); }
+    function activarContingenciaDuplicada(ativo) { activarContingencia(ativo); }
 
     function atualizarPrecoMestre(preco) {
         precoAtual = preco;
@@ -445,7 +460,7 @@
         conectarMesaDados();
     }
 
-    // Mathematical calculations for indicators
+    // Cálculos estruturais matemáticos
     function calcularBollinger() {
         if (historicoPrecos.length < PERIODOS_BOLLINGER) return null;
         const fatiados = historicoPrecos.slice(-PERIODOS_BOLLINGER);
@@ -524,13 +539,13 @@
             btn.innerText = "DESLIGAR ENGINE";
             btn.style.backgroundColor = "var(--vermelho)";
             btn.style.color = "white";
-            log("🤖 Monitoramento avançado (Bollinger + RSI) estruturado.");
+            log("🤖 Monitoramento avançado por confluência (Bollinger + RSI) ATIVADO.");
         } else {
             engineAtiva = false;
             btn.innerText = "LIGAR ENGINE MESTRE";
             btn.style.backgroundColor = "var(--verde)";
             btn.style.color = "black";
-            log("Engine pausada.");
+            log("Engine pausada pelo operador.");
         }
     }
 
